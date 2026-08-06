@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eventix — Event Tickets App</title>
+<meta name="description" content="Event ticketing app: discover events, seat tier selection, checkout, QR wallet tickets. Live interactive demo.">
+<style>
+:root{--pink:#E84393;--pink-l:#FDECF4;--ink:#231B26;--sub:#7E7387;--line:#EDE6F0;--bg:#FAF7FB;--card:#FFF;--vio:#7D3FC9}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter',-apple-system,sans-serif;background:#170F1B;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;color:var(--ink)}
+.stage{display:flex;gap:56px;align-items:center;max-width:1100px}
+.pitch{color:#fff;max-width:380px}
+.pitch .tag{display:inline-block;background:rgba(232,67,147,.2);color:#F5A0CB;border:1px solid rgba(245,160,203,.3);padding:6px 14px;border-radius:100px;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:18px}
+.pitch h1{font-size:40px;line-height:1.1;font-weight:800;margin-bottom:14px}
+.pitch p{color:#A794B2;font-size:15px;line-height:1.65;margin-bottom:22px}
+.pitch .feats{display:flex;flex-direction:column;gap:10px;font-size:14px;color:#D2C4DB}
+.pitch .feats span{display:flex;gap:10px;align-items:center}
+.pitch .feats i{width:6px;height:6px;border-radius:50%;background:#F5A0CB;flex-shrink:0}
+.phone{width:390px;height:812px;background:#000;border-radius:52px;padding:12px;box-shadow:0 40px 100px rgba(0,0,0,.6),0 0 0 2px #372B3D;flex-shrink:0}
+.screen{width:100%;height:100%;background:var(--bg);border-radius:42px;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.notch{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:120px;height:30px;background:#000;border-radius:100px;z-index:100}
+.statusbar{height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 28px 6px;font-size:14px;font-weight:600;flex-shrink:0}
+.view{flex:1;overflow-y:auto;scrollbar-width:none;position:relative}
+.view::-webkit-scrollbar{display:none}
+.page{display:none;padding:8px 20px 96px;animation:fi .25s ease}
+.page.active{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+h2.title{font-size:24px;font-weight:800;margin:8px 0 4px}
+.sub2{color:var(--sub);font-size:12.5px;margin-bottom:14px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:12px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{padding:9px 16px;border-radius:100px;border:1px solid var(--line);background:var(--card);font-size:12.5px;font-weight:700;color:var(--sub);white-space:nowrap;cursor:pointer}
+.chip.on{background:var(--pink);border-color:var(--pink);color:#fff}
+.ev{background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden;margin-bottom:14px;cursor:pointer}
+.evi{aspect-ratio:16/9;background-size:cover;background-position:center;position:relative}
+.date{position:absolute;top:11px;left:11px;background:#fff;border-radius:12px;padding:6px 11px;text-align:center;line-height:1.1}
+.date b{font-size:16px;display:block}
+.date span{font-size:9.5px;font-weight:800;text-transform:uppercase;color:var(--pink)}
+.evb{padding:13px 15px 15px}
+.evn{font-weight:800;font-size:15px}
+.evm{font-size:11.5px;color:var(--sub);margin:3px 0 7px}
+.evp{font-size:13px}
+.evp b{color:var(--pink)}
+/* detail */
+.dimg{aspect-ratio:16/9;border-radius:20px;background-size:cover;background-position:center;margin-bottom:13px}
+.back{background:none;border:0;font-size:13px;font-weight:800;color:var(--sub);cursor:pointer;padding:6px 0;font-family:inherit}
+.tier{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:14px 15px;margin-bottom:9px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.tier.on{border-color:var(--pink);background:var(--pink-l)}
+.tier.out{opacity:.4;cursor:not-allowed}
+.tier b{font-size:13.5px;display:block}
+.tier small{color:var(--sub);font-size:11px}
+.tier .tp{font-weight:800;font-size:15px}
+.qrow{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px 15px;margin:10px 0}
+.qrow b{font-size:13px}
+.qb{display:flex;gap:12px;align-items:center;font-weight:800;font-size:15px}
+.qb button{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--line);background:var(--card);font-size:15px;cursor:pointer}
+.tot{display:flex;justify-content:space-between;align-items:baseline;padding:10px 3px;font-size:13px;color:var(--sub)}
+.tot b{font-size:20px;color:var(--ink)}
+.big{width:100%;background:var(--pink);color:#fff;border:0;border-radius:15px;padding:15px;font-size:14.5px;font-weight:800;cursor:pointer;font-family:inherit}
+/* wallet */
+.tick{background:linear-gradient(135deg,var(--vio),var(--pink));border-radius:20px;padding:18px;color:#fff;margin-bottom:14px;position:relative;overflow:hidden}
+.tick::after{content:'';position:absolute;right:104px;top:-9px;width:18px;height:18px;border-radius:50%;background:var(--bg)}
+.tick::before{content:'';position:absolute;right:104px;bottom:-9px;width:18px;height:18px;border-radius:50%;background:var(--bg)}
+.tkr{display:flex;justify-content:space-between;gap:12px}
+.tkn{font-weight:800;font-size:15.5px}
+.tkm{font-size:11px;opacity:.85;margin-top:3px}
+.tkt{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;background:rgba(255,255,255,.2);display:inline-block;padding:3px 10px;border-radius:100px;margin-top:9px}
+.qr{width:76px;height:76px;background:#fff;border-radius:12px;flex-shrink:0;display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(7,1fr);gap:1.5px;padding:7px}
+.qr i{background:#221;border-radius:1px}
+.qr i.o{background:transparent}
+.emptyT{text-align:center;color:var(--sub);font-size:13px;padding:40px 10px}
+.tabbar{position:absolute;bottom:0;left:0;right:0;height:78px;background:var(--card);border-top:1px solid var(--line);display:flex;padding-bottom:14px;z-index:50}
+.tb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10.5px;font-weight:700;color:var(--sub);cursor:pointer}
+.tb.on{color:var(--pink)}
+.tb .ic{font-size:20px}
+.toast{position:absolute;bottom:92px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 20px;border-radius:100px;font-size:11.5px;font-weight:700;opacity:0;transition:.3s;z-index:200;pointer-events:none;white-space:nowrap;max-width:90%;overflow:hidden;text-overflow:ellipsis}
+.toast.show{opacity:1}
+@media(max-width:920px){.stage{flex-direction:column;gap:28px}.pitch{text-align:center;max-width:340px}.pitch h1{font-size:30px}.phone{width:min(390px,94vw);height:min(812px,calc(94vw*2.08))}}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="pitch">
+    <span class="tag">Flutter · Mobile App</span>
+    <h1>Eventix</h1>
+    <p>Discover what's on tonight, grab a tier that isn't sold out, and walk in with a QR ticket that lives in your wallet.</p>
+    <div class="feats">
+      <span><i></i>Event discovery with category filters</span>
+      <span><i></i>Seat tiers with sold-out states</span>
+      <span><i></i>Quantity + live total checkout</span>
+      <span><i></i>QR wallet tickets after purchase</span>
+    </div>
+  </div>
+  <div class="phone"><div class="screen">
+    <div class="notch"></div>
+    <div class="statusbar"><span>9:41</span><span>𝗹𝗹 ⏾ ▮</span></div>
+    <div class="view">
+      <div class="page active" id="p-disc">
+        <h2 class="title">This week</h2>
+        <p class="sub2">Portland · Aug 6–12</p>
+        <div class="chips" id="chips"></div>
+        <div id="evs"></div>
+      </div>
+      <div class="page" id="p-det">
+        <button class="back" onclick="tabTo(0,'disc')">← All events</button>
+        <div class="dimg" id="dImg"></div>
+        <h2 class="title" id="dName"></h2>
+        <p class="sub2" id="dMeta"></p>
+        <div id="tiers"></div>
+        <div class="qrow"><b>Quantity</b><div class="qb"><button onclick="chQ(-1)">−</button><span id="qV">2</span><button onclick="chQ(1)">+</button></div></div>
+        <div class="tot"><span id="totL"></span><b id="totV"></b></div>
+        <button class="big" onclick="buy()">Get tickets</button>
+      </div>
+      <div class="page" id="p-wal">
+        <h2 class="title">Wallet</h2>
+        <p class="sub2" id="wSub"></p>
+        <div id="ticks"></div>
+      </div>
+    </div>
+    <div class="tabbar">
+      <div class="tb on" onclick="tabTo(0,'disc')"><span class="ic">🎪</span>Discover</div>
+      <div class="tb" onclick="tabTo(1,'wal')"><span class="ic">🎟</span>Wallet</div>
+    </div>
+    <div class="toast" id="toastEl"></div>
+  </div></div>
+</div>
+
+<script>
+const IMG=i=>`https://images.unsplash.com/${i}?w=760&h=440&fit=crop`;
+const E=[
+ {n:'Neon Harbor — Live',cat:'Music',d:'8',mo:'Aug',venue:'The Foundry · 8 PM',img:'photo-1470229722913-7c0e2dbbafd3',
+  tiers:[['General admission','Standing floor',45,true],['Balcony','Reserved seat',72,true],['VIP side-stage','Meet & greet incl.',140,false]]},
+ {n:'Laugh Riot Comedy Night',cat:'Comedy',d:'9',mo:'Aug',venue:'Brick Cellar · 9 PM',img:'photo-1585699324551-f6c309eedeca',
+  tiers:[['Standard','Any open table',28,true],['Front row','You WILL be picked on',44,true]]},
+ {n:'City FC vs Harbor United',cat:'Sports',d:'10',mo:'Aug',venue:'Meridian Stadium · 5 PM',img:'photo-1489944440615-453fc2b6a9a9',
+  tiers:[['Upper tier','Sections 301–318',32,true],['Lower sideline','Sections 104–112',68,true],['Club level','Lounge access',125,true]]},
+ {n:'Night Market: Food & Vinyl',cat:'Food',d:'11',mo:'Aug',venue:'Riverfront Yards · 6 PM',img:'photo-1414235077428-338989a2e8c0',
+  tiers:[['Entry','12 vendors + DJ sets',15,true],['Taster pass','Entry + 6 tasting tokens',39,true]]},
+];
+const CATS=['All','Music','Comedy','Sports','Food'];
+let cat='All',cur=0,tier=0,qty=2,wallet=[];
+function rChips(){document.getElementById('chips').innerHTML=CATS.map(c=>`<span class="chip${c===cat?' on':''}" onclick="cat='${c}';rChips();rE()">${c}</span>`).join('')}
+function rE(){
+ document.getElementById('evs').innerHTML=E.filter(e=>cat==='All'||e.cat===cat).map(e=>{
+  const i=E.indexOf(e),min=Math.min(...e.tiers.filter(t=>t[3]).map(t=>t[2]));
+  return `<div class="ev" onclick="openD(${i})">
+   <div class="evi" style="background-image:url('${IMG(e.img)}')"><div class="date"><b>${e.d}</b><span>${e.mo}</span></div></div>
+   <div class="evb"><div class="evn">${e.n}</div><div class="evm">${e.venue}</div>
+   <div class="evp">From <b>$${min}</b></div></div></div>`}).join('');
+}
+function openD(i){
+ cur=i;tier=E[i].tiers.findIndex(t=>t[3]);qty=2;
+ const e=E[i];
+ document.getElementById('dImg').style.backgroundImage=`url('${IMG(e.img)}')`;
+ document.getElementById('dName').textContent=e.n;
+ document.getElementById('dMeta').textContent=e.venue+' · '+e.mo+' '+e.d;
+ rTiers();rTot();
+ showPage('det');
+}
+function rTiers(){
+ document.getElementById('tiers').innerHTML=E[cur].tiers.map((t,k)=>`
+  <div class="tier${k===tier?' on':''}${!t[3]?' out':''}" onclick="${t[3]?`tier=${k};rTiers();rTot()`:`toast('${t[0]} is sold out')`}">
+   <span><b>${t[0]}</b><small>${t[3]?t[1]:'Sold out'}</small></span><span class="tp">$${t[2]}</span></div>`).join('');
+}
+function chQ(d){qty=Math.max(1,Math.min(8,qty+d));document.getElementById('qV').textContent=qty;rTot()}
+function rTot(){
+ const t=E[cur].tiers[tier],sub=t[2]*qty,fee=Math.round(sub*0.08);
+ document.getElementById('totL').textContent=`${qty} × ${t[0]} + $${fee} fees`;
+ document.getElementById('totV').textContent='$'+(sub+fee);
+}
+function buy(){
+ const e=E[cur],t=e.tiers[tier];
+ wallet.push({n:e.n,m:e.mo+' '+e.d+' · '+e.venue,t:qty+' × '+t[0],ref:'EV-'+Math.floor(10000+Math.random()*89999)});
+ toast(`🎟 ${qty} ticket${qty>1?'s':''} secured — in your wallet`);
+ rWal();tabTo(1,'wal');
+}
+function qrCells(){
+ let h='';for(let i=0;i<49;i++){h+=`<i class="${(i*13+7)%3===0?'o':''}"></i>`}return h;
+}
+function rWal(){
+ document.getElementById('wSub').textContent=wallet.length?wallet.length+' ticket group'+(wallet.length>1?'s':''):'No tickets yet';
+ document.getElementById('ticks').innerHTML=wallet.length?wallet.map(w=>`
+  <div class="tick"><div class="tkr">
+   <div><div class="tkn">${w.n}</div><div class="tkm">${w.m}</div><div class="tkm">${w.t} · ${w.ref}</div><span class="tkt">Scan at entry</span></div>
+   <div class="qr">${qrCells()}</div>
+  </div></div>`).join('')
+ :'<div class="emptyT">🎟<br><br>Tickets you buy appear here<br>with a scannable QR.</div>';
+}
+function showPage(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById('p-'+p).classList.add('active')}
+function tabTo(idx,p){document.querySelectorAll('.tb').forEach((t,i)=>t.classList.toggle('on',i===idx));showPage(p)}
+let tt;function toast(m){const t=document.getElementById('toastEl');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2200)}
+rChips();rE();rWal();
+</script>
+</body>
+</html>
