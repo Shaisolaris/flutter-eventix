@@ -2,6 +2,8 @@
 /// Flutter or any provider/repository - every function takes a [TicketTier]
 /// (or a list of them) and returns a plain value, so the whole module can be
 /// unit tested directly.
+library;
+
 import '../models/ticket_tier.dart';
 
 /// How many tickets are still unsold in [tier].

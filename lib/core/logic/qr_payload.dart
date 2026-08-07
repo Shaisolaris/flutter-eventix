@@ -10,6 +10,7 @@
 /// payload always produces the same block, and two different tickets
 /// (almost always) render visibly different ones - which is all a demo
 /// ticket needs to look convincing at a glance. It is not a scannable code.
+library;
 
 /// Builds the deterministic string "encoded" by a ticket's QR-style block.
 ///

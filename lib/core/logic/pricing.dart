@@ -14,6 +14,7 @@
 /// Every currency amount is rounded to the nearest cent at the point it is
 /// produced (see [roundToCents]), so the pieces always sum exactly to
 /// [OrderBreakdown.total] with no floating-point penny drift.
+library;
 
 /// One tier's contribution to an order before pricing is applied: how many
 /// of [tierId] were requested, and at what price each.

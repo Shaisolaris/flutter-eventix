@@ -58,7 +58,7 @@ class _EventDetailScreenState extends ConsumerState<EventDetailScreen> {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final event = ref.watch(eventByIdProvider(widget.eventId));
 
     if (event == null) {
